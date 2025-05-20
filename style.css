@@ -1,3 +1,4 @@
+/* Base Styles */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #0a0a1a;
@@ -10,7 +11,7 @@ body {
 }
 
 .game-container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     background-color: rgba(10, 10, 30, 0.9);
     padding: 20px;
@@ -25,6 +26,41 @@ h1 {
     text-shadow: 0 0 10px rgba(106, 226, 255, 0.5);
 }
 
+/* Tabs */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #444477;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #aaa;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    color: #6ae2ff;
+    border-bottom: 2px solid #6ae2ff;
+}
+
+.tab-btn:hover {
+    color: #fff;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Mining Section */
 .main-currency {
     text-align: center;
     margin: 20px 0;
@@ -34,7 +70,7 @@ h1 {
     border: 1px solid #3a3a7a;
 }
 
-#resources {
+#current-ore {
     font-size: 24px;
     color: #6ae2ff;
 }
@@ -63,15 +99,12 @@ h1 {
     transform: scale(0.95);
 }
 
-.upgrades, .planets, .stats {
-    margin-top: 30px;
-    padding: 15px;
-    background-color: rgba(20, 20, 50, 0.7);
-    border-radius: 5px;
-    border: 1px solid #3a3a7a;
+/* Ores List */
+.ores-list {
+    margin-top: 20px;
 }
 
-.upgrade, .planet {
+.ore {
     background-color: rgba(30, 30, 70, 0.7);
     padding: 15px;
     margin-bottom: 10px;
@@ -79,11 +112,35 @@ h1 {
     border-left: 4px solid #6a5acd;
 }
 
-.upgrade p, .planet p {
+.ore.locked {
+    opacity: 0.6;
+}
+
+/* Upgrades Grid */
+.upgrades-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.upgrade {
+    background-color: rgba(30, 30, 70, 0.7);
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #6a5acd;
+}
+
+.upgrade.locked {
+    opacity: 0.5;
+    filter: grayscale(80%);
+}
+
+.upgrade p {
     margin: 5px 0;
 }
 
-.buy-btn, .unlock-btn {
+.buy-btn {
     background-color: #4b0082;
     color: white;
     border: none;
@@ -93,18 +150,62 @@ h1 {
     transition: background-color 0.2s;
 }
 
-.buy-btn:hover, .unlock-btn:hover {
+.buy-btn:hover {
     background-color: #5a1a92;
 }
 
+/* Planets Grid */
+.planets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.planet {
+    background-color: rgba(30, 30, 70, 0.7);
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #6a5acd;
+    text-align: center;
+}
+
 .planet.locked {
-    opacity: 0.7;
+    opacity: 0.6;
 }
 
-.planet.locked p {
-    color: #aaa;
+.planet.active {
+    border-left: 4px solid #6ae2ff;
 }
 
-.stats p {
-    margin: 5px 0;
+.unlock-btn {
+    background-color: #4b0082;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+}
+
+.unlock-btn:hover {
+    background-color: #5a1a92;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.stat {
+    background-color: rgba(30, 30, 70, 0.7);
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #6a5acd;
+}
+
+.stat p {
+    margin: 0;
 }
