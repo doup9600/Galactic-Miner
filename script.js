@@ -1,238 +1,444 @@
-// Game state
-let cosmicOre = 0;
+// ======================
+// Game State & Variables
+// ======================
+
+let currentOre = "rock"; // Current active ore type
+let ores = {
+    rock: 0,
+    verdanite: 0,
+    ferrustone: 0,
+    stormcrystal: 0,
+    sulcarite: 0,
+    cryonox: 0,
+    noxium: 0
+};
+
 let totalMined = 0;
 let totalClicks = 0;
 let ops = 0; // Ore per second
 
-// Upgrades
-const upgrades = {
-    drone: {
-        owned: 0,
-        cost: 25,
-        value: 1
-    },
-    harvester: {
-        owned: 0,
-        cost: 100,
-        value: 5
-    },
-    freighter: {
-        owned: 0,
-        cost: 500,
-        value: 20
-    }
-};
-
-// Planets
+// Planets data
 const planets = {
-    earth: { unlocked: true, incomeMultiplier: 1 },
-    mars: { unlocked: false, cost: 1000, incomeMultiplier: 2 },
-    jupiter: { unlocked: false, cost: 5000, incomeMultiplier: 5 }
+    "zephyros-9": { unlocked: true, ore: "rock" },
+    "earth": { unlocked: false, ore: "verdanite", cost: 1000, costType: "rock" },
+    "mars": { unlocked: false, ore: "ferrustone", cost: 5000, costType: "rock" },
+    "jupiter": { unlocked: false, ore: "stormcrystal", cost: 25000, costType: "rock" },
+    "venus": { unlocked: false, ore: "sulcarite", cost: 100000, costType: "rock" },
+    "uranus": { unlocked: false, ore: "cryonox", cost: 500000, costType: "rock" },
+    "pluto": { unlocked: false, ore: "noxium", cost: 2000000, costType: "rock" }
 };
 
-// DOM elements
-const resourcesDisplay = document.getElementById('resources');
-const mineBtn = document.getElementById('mine-btn');
-const opsDisplay = document.getElementById('ops');
-const totalMinedDisplay = document.getElementById('total-mined');
-const totalClicksDisplay = document.getElementById('total-clicks');
-const upgradeElements = document.querySelectorAll('.upgrade');
-const planetElements = document.querySelectorAll('.planet');
+// Upgrades data
+const upgrades = {
+    // Basic upgrades (available from start)
+    "hand_pick": {
+        name: "Hand Pick",
+        description: "Mine 2x faster manually",
+        owned: 0,
+        max: 5,
+        cost: 50,
+        costType: "rock",
+        effect: () => { manualMiningPower = 2 * (1 + upgrades.hand_pick.owned); },
+        unlocked: true
+    },
+    "wooden_crate": {
+        name: "Wooden Crate",
+        description: "Store 10% more ore",
+        owned: 0,
+        max: 3,
+        cost: 100,
+        costType: "rock",
+        effect: () => { storageMultiplier = 1 + (0.1 * upgrades.wooden_crate.owned); },
+        unlocked: true
+    },
+    
+    // Earth unlocks
+    "iron_pick": {
+        name: "Iron Pickaxe",
+        description: "Mine 5x faster manually (Requires Earth)",
+        owned: 0,
+        max: 3,
+        cost: 500,
+        costType: "verdanite",
+        effect: () => { manualMiningPower = 5 * (1 + upgrades.iron_pick.owned); },
+        unlocked: false
+    },
+    
+    // Mars unlocks
+    "auto_drill": {
+        name: "Auto Drill",
+        description: "Automatically mine 1 Rock/sec (Requires Mars)",
+        owned: 0,
+        max: 1,
+        cost: 2000,
+        costType: "ferrustone",
+        effect: () => { autoMiners.rock = 1 * (1 + upgrades.auto_drill.owned); },
+        unlocked: false
+    },
+    
+    // ... (Additional upgrades up to 20)
+};
 
-// Initialize the game
+// Mining variables
+let manualMiningPower = 1;
+let storageMultiplier = 1;
+let autoMiners = {
+    rock: 0,
+    verdanite: 0,
+    ferrustone: 0,
+    stormcrystal: 0,
+    sulcarite: 0,
+    cryonox: 0,
+    noxium: 0
+};
+
+// ======================
+// DOM Elements
+// ======================
+
+// Tabs
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+// Mining
+const mineBtn = document.getElementById('mine-btn');
+const currentOreDisplay = document.getElementById('current-ore');
+
+// Stats
+const totalMinedDisplay = document.getElementById('total-mined');
+const opsDisplay = document.getElementById('ops');
+const totalClicksDisplay = document.getElementById('total-clicks');
+const planetsUnlockedDisplay = document.getElementById('planets-unlocked');
+const upgradesOwnedDisplay = document.getElementById('upgrades-owned');
+
+// ======================
+// Game Initialization
+// ======================
+
 function init() {
     loadGame();
-    updateDisplay();
     setupEventListeners();
+    updateAllDisplays();
     startGameLoop();
+    
+    // Initialize upgrades
+    applyAllUpgradeEffects();
 }
 
-// Load saved game
-function loadGame() {
-    const savedGame = localStorage.getItem('galacticMinerSave');
-    if (savedGame) {
-        const gameState = JSON.parse(savedGame);
-        cosmicOre = gameState.cosmicOre || 0;
-        totalMined = gameState.totalMined || 0;
-        totalClicks = gameState.totalClicks || 0;
+// ======================
+// Core Game Functions
+// ======================
+
+function mine() {
+    ores[currentOre] += manualMiningPower;
+    totalMined += manualMiningPower;
+    totalClicks++;
+    updateAllDisplays();
+    saveGame();
+    
+    // Button animation
+    mineBtn.style.transform = 'scale(0.95)';
+    setTimeout(() => mineBtn.style.transform = 'scale(1)', 100);
+}
+
+function unlockPlanet(planetId) {
+    const planet = planets[planetId];
+    if (!planet.unlocked && ores[planet.costType] >= planet.cost) {
+        ores[planet.costType] -= planet.cost;
+        planet.unlocked = true;
         
-        for (const key in upgrades) {
-            if (gameState.upgrades && gameState.upgrades[key]) {
-                upgrades[key].owned = gameState.upgrades[key].owned || 0;
-                upgrades[key].cost = gameState.upgrades[key].cost || upgrades[key].cost;
-            }
-        }
+        // Unlock new ore
+        ores[planet.ore] = 0;
         
-        for (const key in planets) {
-            if (gameState.planets && gameState.planets[key]) {
-                planets[key].unlocked = gameState.planets[key].unlocked || false;
-            }
-        }
+        // Unlock associated upgrades
+        unlockPlanetUpgrades(planetId);
+        
+        updateAllDisplays();
+        saveGame();
     }
 }
 
-// Save game
-function saveGame() {
-    const gameState = {
-        cosmicOre,
-        totalMined,
-        totalClicks,
-        upgrades: {},
-        planets: {}
+function unlockPlanetUpgrades(planetId) {
+    // Earth unlocks iron pick
+    if (planetId === "earth") {
+        upgrades.iron_pick.unlocked = true;
+    }
+    // Mars unlocks auto drill
+    else if (planetId === "mars") {
+        upgrades.auto_drill.unlocked = true;
+    }
+    // ... other planet upgrade unlocks
+}
+
+function buyUpgrade(upgradeId) {
+    const upgrade = upgrades[upgradeId];
+    if (upgrade.owned < upgrade.max && ores[upgrade.costType] >= upgrade.cost) {
+        ores[upgrade.costType] -= upgrade.cost;
+        upgrade.owned++;
+        upgrade.cost = Math.floor(upgrade.cost * 1.5); // Increase cost
+        
+        // Apply upgrade effect
+        upgrade.effect();
+        
+        updateAllDisplays();
+        saveGame();
+    }
+}
+
+function calculateOPS() {
+    let total = 0;
+    
+    // Add auto-miners
+    for (const oreType in autoMiners) {
+        total += autoMiners[oreType];
+    }
+    
+    ops = total;
+    return total;
+}
+
+// ======================
+// Display Functions
+// ======================
+
+function updateAllDisplays() {
+    updateOreDisplay();
+    updateUpgradesDisplay();
+    updatePlanetsDisplay();
+    updateStatsDisplay();
+}
+
+function updateOreDisplay() {
+    // Current ore
+    const oreNames = {
+        rock: "🪨 Rock",
+        verdanite: "🌿 Verdanite",
+        ferrustone: "🪨 Ferrustone",
+        stormcrystal: "⚡ Stormcrystal",
+        sulcarite: "🔥 Sulcarite",
+        cryonox: "❄️ Cryonox",
+        noxium: "☢️ Noxium"
     };
     
-    for (const key in upgrades) {
-        gameState.upgrades[key] = {
-            owned: upgrades[key].owned,
-            cost: upgrades[key].cost
-        };
+    currentOreDisplay.innerHTML = `${Math.floor(ores[currentOre])} ${oreNames[currentOre]}`;
+    
+    // Ore list
+    document.querySelectorAll('.ore').forEach(oreElement => {
+        const oreId = oreElement.id;
+        if (ores[oreId] !== undefined) {
+            if (oreElement.classList.contains('locked') && planets[getPlanetByOre(oreId)].unlocked) {
+                oreElement.classList.remove('locked');
+            }
+            
+            if (!oreElement.classList.contains('locked')) {
+                oreElement.querySelector('.amount').textContent = Math.floor(ores[oreId]);
+            }
+        }
+    });
+}
+
+function updateUpgradesDisplay() {
+    const availableUpgradesContainer = document.getElementById('available-upgrades');
+    const lockedUpgradesContainer = document.getElementById('locked-upgrades');
+    
+    availableUpgradesContainer.innerHTML = '';
+    lockedUpgradesContainer.innerHTML = '';
+    
+    let ownedUpgrades = 0;
+    
+    for (const [id, upgrade] of Object.entries(upgrades)) {
+        ownedUpgrades += upgrade.owned;
+        
+        const upgradeElement = document.createElement('div');
+        upgradeElement.className = 'upgrade';
+        upgradeElement.innerHTML = `
+            <p><strong>${upgrade.name}</strong> (${upgrade.owned}/${upgrade.max})</p>
+            <p>${upgrade.description}</p>
+            <p>Cost: ${upgrade.cost} ${upgrade.costType}</p>
+            <button class="buy-btn" data-upgrade="${id}">Buy</button>
+        `;
+        
+        if (upgrade.unlocked) {
+            availableUpgradesContainer.appendChild(upgradeElement);
+        } else {
+            upgradeElement.classList.add('locked');
+            lockedUpgradesContainer.appendChild(upgradeElement);
+        }
     }
     
-    for (const key in planets) {
-        gameState.planets[key] = {
-            unlocked: planets[key].unlocked
-        };
+    upgradesOwnedDisplay.textContent = ownedUpgrades;
+}
+
+function updatePlanetsDisplay() {
+    let unlockedCount = 0;
+    
+    document.querySelectorAll('.planet').forEach(planetElement => {
+        const planetId = planetElement.id;
+        const planet = planets[planetId];
+        
+        if (planet.unlocked) {
+            unlockedCount++;
+            planetElement.classList.remove('locked');
+            
+            // Remove unlock button if exists
+            const unlockBtn = planetElement.querySelector('.unlock-btn');
+            if (unlockBtn) unlockBtn.remove();
+        } else {
+            // Update unlock button state
+            const unlockBtn = planetElement.querySelector('.unlock-btn');
+            if (unlockBtn) {
+                unlockBtn.disabled = ores[planet.costType] < planet.cost;
+            }
+        }
+    });
+    
+    planetsUnlockedDisplay.textContent = unlockedCount;
+}
+
+function updateStatsDisplay() {
+    totalMinedDisplay.textContent = Math.floor(totalMined);
+    opsDisplay.textContent = calculateOPS();
+    totalClicksDisplay.textContent = totalClicks;
+}
+
+// ======================
+// Utility Functions
+// ======================
+
+function getPlanetByOre(oreType) {
+    for (const [planetId, planet] of Object.entries(planets)) {
+        if (planet.ore === oreType) return planetId;
     }
+    return null;
+}
+
+// ======================
+// Game Loop & Save/Load
+// ======================
+
+function startGameLoop() {
+    setInterval(() => {
+        // Auto-mining
+        for (const oreType in autoMiners) {
+            if (autoMiners[oreType] > 0) {
+                const amount = autoMiners[oreType] / 10; // Smooth updates
+                ores[oreType] += amount;
+                totalMined += amount;
+            }
+        }
+        
+        updateAllDisplays();
+    }, 100);
+    
+    // Autosave every 30 seconds
+    setInterval(saveGame, 30000);
+}
+
+function saveGame() {
+    const gameState = {
+        ores,
+        totalMined,
+        totalClicks,
+        currentOre,
+        planets,
+        upgrades,
+        autoMiners,
+        manualMiningPower,
+        storageMultiplier
+    };
     
     localStorage.setItem('galacticMinerSave', JSON.stringify(gameState));
 }
 
-// Update all displays
-function updateDisplay() {
-    resourcesDisplay.innerHTML = `${Math.floor(cosmicOre)} <span class="resource-icon">⛏️</span> Cosmic Ore`;
-    opsDisplay.textContent = ops;
-    totalMinedDisplay.textContent = Math.floor(totalMined);
-    totalClicksDisplay.textContent = totalClicks;
-    
-    // Update upgrade displays
-    upgradeElements.forEach(element => {
-        const upgradeId = element.id;
-        const upgrade = upgrades[upgradeId];
+function loadGame() {
+    const savedGame = localStorage.getItem('galacticMinerSave');
+    if (savedGame) {
+        const gameState = JSON.parse(savedGame);
         
-        if (upgrade) {
-            element.querySelector('p').innerHTML = 
-                `${element.id.charAt(0).toUpperCase() + element.id.slice(1).replace(/([A-Z])/g, ' $1')}s (${upgrade.owned}) - ${upgrade.value} ore every 1 second`;
-            element.querySelector('.cost').textContent = Math.floor(upgrade.cost);
-            element.querySelector('.buy-btn').disabled = cosmicOre < upgrade.cost;
-        }
-    });
-    
-    // Update planet displays
-    planetElements.forEach(element => {
-        const planetId = element.id;
-        const planet = planets[planetId];
+        // Load basic stats
+        ores = gameState.ores || ores;
+        totalMined = gameState.totalMined || 0;
+        totalClicks = gameState.totalClicks || 0;
+        currentOre = gameState.currentOre || "rock";
         
-        if (planet) {
-            if (planet.unlocked) {
-                element.classList.remove('locked');
-                element.querySelector('p').innerHTML = `🌍 ${planetId.charAt(0).toUpperCase() + planetId.slice(1)} (Income: ${planet.incomeMultiplier}x)`;
-                if (element.querySelector('.unlock-btn')) {
-                    element.querySelector('.unlock-btn').remove();
-                }
-            } else {
-                element.classList.add('locked');
-                element.querySelector('p').innerHTML = `🔒 ${planetId.charAt(0).toUpperCase() + planetId.slice(1)} (Requires ${planet.cost} Ore)`;
-                element.querySelector('.unlock-btn').disabled = cosmicOre < planet.cost;
+        // Load planets
+        for (const planetId in planets) {
+            if (gameState.planets && gameState.planets[planetId]) {
+                planets[planetId].unlocked = gameState.planets[planetId].unlocked;
             }
         }
-    });
+        
+        // Load upgrades
+        for (const upgradeId in upgrades) {
+            if (gameState.upgrades && gameState.upgrades[upgradeId]) {
+                upgrades[upgradeId].owned = gameState.upgrades[upgradeId].owned;
+                upgrades[upgradeId].cost = gameState.upgrades[upgradeId].cost;
+                upgrades[upgradeId].unlocked = gameState.upgrades[upgradeId].unlocked;
+            }
+        }
+        
+        // Load auto-miners
+        autoMiners = gameState.autoMiners || autoMiners;
+        
+        // Apply upgrades
+        applyAllUpgradeEffects();
+    }
 }
 
-// Calculate OPS (Ore Per Second)
-function calculateOPS() {
-    let newOps = 0;
-    for (const key in upgrades) {
-        newOps += upgrades[key].owned * upgrades[key].value;
-    }
-    
-    // Apply planet multipliers
-    for (const key in planets) {
-        if (planets[key].unlocked) {
-            newOps *= planets[key].incomeMultiplier;
+function applyAllUpgradeEffects() {
+    for (const upgrade of Object.values(upgrades)) {
+        if (upgrade.owned > 0) {
+            upgrade.effect();
         }
     }
-    
-    ops = newOps;
-    return newOps;
 }
 
-// Game loop
-function startGameLoop() {
-    setInterval(() => {
-        const oreToAdd = calculateOPS() / 10; // Smooth updates
-        if (oreToAdd > 0) {
-            cosmicOre += oreToAdd;
-            totalMined += oreToAdd;
-            updateDisplay();
-        }
-    }, 100);
-    
-    setInterval(saveGame, 10000); // Autosave every 10 seconds
-}
+// ======================
+// Event Listeners
+// ======================
 
-// Event listeners
 function setupEventListeners() {
-    // Mine button
-    mineBtn.addEventListener('click', () => {
-        cosmicOre += 1;
-        totalMined += 1;
-        totalClicks += 1;
-        updateDisplay();
-        
-        // Animation
-        mineBtn.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            mineBtn.style.transform = 'scale(1)';
-        }, 100);
-    });
-    
-    // Upgrade buttons
-    upgradeElements.forEach(element => {
-        const upgradeId = element.id;
-        const buyBtn = element.querySelector('.buy-btn');
-        
-        buyBtn.addEventListener('click', () => {
-            const upgrade = upgrades[upgradeId];
+    // Tab switching
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
             
-            if (cosmicOre >= upgrade.cost) {
-                cosmicOre -= upgrade.cost;
-                upgrade.owned += 1;
-                upgrade.cost = Math.floor(upgrade.cost * 1.2); // 20% cost increase
-                calculateOPS();
-                updateDisplay();
-                saveGame();
-                
-                // Animation
-                buyBtn.textContent = 'Purchased!';
-                setTimeout(() => {
-                    buyBtn.textContent = 'Buy';
-                }, 500);
-            }
+            // Update active tab
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Show corresponding content
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
         });
     });
     
-    // Planet unlock buttons
-    planetElements.forEach(element => {
-        const unlockBtn = element.querySelector('.unlock-btn');
-        if (unlockBtn) {
-            unlockBtn.addEventListener('click', () => {
-                const planetId = element.id;
-                const planet = planets[planetId];
-                
-                if (cosmicOre >= planet.cost) {
-                    cosmicOre -= planet.cost;
-                    planet.unlocked = true;
-                    calculateOPS();
-                    updateDisplay();
-                    saveGame();
-                    
-                    // Animation
-                    unlockBtn.textContent = 'Unlocked!';
-                    setTimeout(() => {
-                        unlockBtn.remove();
-                    }, 1000);
-                }
-            });
+    // Mining button
+    mineBtn.addEventListener('click', mine);
+    
+    // Planet unlocking
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('unlock-btn')) {
+            const planetId = e.target.closest('.planet').id;
+            unlockPlanet(planetId);
+        }
+    });
+    
+    // Upgrade purchasing
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('buy-btn')) {
+            const upgradeId = e.target.getAttribute('data-upgrade');
+            if (upgradeId) buyUpgrade(upgradeId);
+        }
+    });
+    
+    // Ore switching (if you want clicking an ore to make it active)
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.ore') && !e.target.closest('.ore').classList.contains('locked')) {
+            const oreId = e.target.closest('.ore').id;
+            currentOre = oreId;
+            updateOreDisplay();
+            saveGame();
         }
     });
 }
