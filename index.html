@@ -10,56 +10,133 @@
     <div class="game-container">
         <h1>Galactic Miner</h1>
         
-        <div class="main-currency">
-            <h2 id="resources">0 <span class="resource-icon">⛏️</span> Cosmic Ore</h2>
-            <button id="mine-btn">Mine Ore</button>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="ores">⛏️ Ores</button>
+            <button class="tab-btn" data-tab="upgrades">🛠️ Upgrades</button>
+            <button class="tab-btn" data-tab="planets">🌌 Planets</button>
+            <button class="tab-btn" data-tab="stats">📊 Stats</button>
         </div>
         
-        <div class="upgrades">
-            <h3>🛠️ Upgrades</h3>
-            
-            <div class="upgrade" id="drone">
-                <p>Mining Drones (0) - 1 ore every 1 second</p>
-                <p>Cost: <span class="cost">25</span> Cosmic Ore</p>
-                <button class="buy-btn">Buy</button>
+        <!-- Ores Tab -->
+        <div class="tab-content active" id="ores">
+            <div class="main-currency">
+                <h2 id="current-ore">0 <span class="resource-icon">🪨</span> Rock</h2>
+                <button id="mine-btn">Mine</button>
             </div>
             
-            <div class="upgrade" id="harvester">
-                <p>Auto-Harvesters (0) - 5 ore every 1 second</p>
-                <p>Cost: <span class="cost">100</span> Cosmic Ore</p>
-                <button class="buy-btn">Buy</button>
-            </div>
-            
-            <div class="upgrade" id="freighter">
-                <p>Cargo Freighters (0) - 20 ore every 1 second</p>
-                <p>Cost: <span class="cost">500</span> Cosmic Ore</p>
-                <button class="buy-btn">Buy</button>
+            <div class="ores-list">
+                <h3>Discovered Ores</h3>
+                <div class="ore" id="rock">
+                    <p>🪨 Rock (Zephyros-9)</p>
+                    <p>Amount: <span class="amount">0</span></p>
+                </div>
+                
+                <div class="ore locked" id="verdanite">
+                    <p>🔒 🌿 Verdanite (Earth)</p>
+                </div>
+                
+                <div class="ore locked" id="ferrustone">
+                    <p>🔒 🪨 Ferrustone (Mars)</p>
+                </div>
+                
+                <div class="ore locked" id="stormcrystal">
+                    <p>🔒 ⚡ Stormcrystal (Jupiter)</p>
+                </div>
+                
+                <div class="ore locked" id="sulcarite">
+                    <p>🔒 🔥 Sulcarite (Venus)</p>
+                </div>
+                
+                <div class="ore locked" id="cryonox">
+                    <p>🔒 ❄️ Cryonox (Uranus)</p>
+                </div>
+                
+                <div class="ore locked" id="noxium">
+                    <p>🔒 ☢️ Noxium (Pluto)</p>
+                </div>
             </div>
         </div>
         
-        <div class="planets">
-            <h3>🌌 Discovered Planets</h3>
-            <div class="planet" id="earth">
-                <p>🌍 Earth (Basic Mining)</p>
-                <p>Current income: <span class="income">1x</span></p>
+        <!-- Upgrades Tab -->
+        <div class="tab-content" id="upgrades">
+            <h3>Available Upgrades</h3>
+            <div class="upgrades-grid" id="available-upgrades">
+                <!-- Upgrades will be loaded here via JS -->
             </div>
             
-            <div class="planet locked" id="mars">
-                <p>🔒 Mars (Requires 1,000 Ore)</p>
-                <button class="unlock-btn">Unlock</button>
-            </div>
-            
-            <div class="planet locked" id="jupiter">
-                <p>🔒 Jupiter (Requires 5,000 Ore)</p>
-                <button class="unlock-btn">Unlock</button>
+            <h3>Locked Upgrades</h3>
+            <div class="upgrades-grid locked" id="locked-upgrades">
+                <!-- Locked upgrades will appear here -->
             </div>
         </div>
         
-        <div class="stats">
-            <h3>📊 Stats</h3>
-            <p>Ore per second: <span id="ops">0</span></p>
-            <p>Total mined: <span id="total-mined">0</span></p>
-            <p>Total clicks: <span id="total-clicks">0</span></p>
+        <!-- Planets Tab -->
+        <div class="tab-content" id="planets">
+            <h3>Your Planets</h3>
+            <div class="planets-grid">
+                <div class="planet active" id="zephyros-9">
+                    <p>🪐 Zephyros-9</p>
+                    <p>Ore: 🪨 Rock</p>
+                </div>
+                
+                <div class="planet locked" id="earth">
+                    <p>🔒 🌍 Earth</p>
+                    <p>Ore: 🌿 Verdanite</p>
+                    <button class="unlock-btn">Unlock (1,000 Rock)</button>
+                </div>
+                
+                <div class="planet locked" id="mars">
+                    <p>🔒 🔴 Mars</p>
+                    <p>Ore: 🪨 Ferrustone</p>
+                    <button class="unlock-btn">Unlock (5,000 Rock)</button>
+                </div>
+                
+                <div class="planet locked" id="jupiter">
+                    <p>🔒 🟠 Jupiter</p>
+                    <p>Ore: ⚡ Stormcrystal</p>
+                    <button class="unlock-btn">Unlock (25,000 Rock)</button>
+                </div>
+                
+                <div class="planet locked" id="venus">
+                    <p>🔒 🟡 Venus</p>
+                    <p>Ore: 🔥 Sulcarite</p>
+                    <button class="unlock-btn">Unlock (100,000 Rock)</button>
+                </div>
+                
+                <div class="planet locked" id="uranus">
+                    <p>🔒 🔵 Uranus</p>
+                    <p>Ore: ❄️ Cryonox</p>
+                    <button class="unlock-btn">Unlock (500,000 Rock)</button>
+                </div>
+                
+                <div class="planet locked" id="pluto">
+                    <p>🔒 ⚪ Pluto</p>
+                    <p>Ore: ☢️ Noxium</button>
+                    <button class="unlock-btn">Unlock (2,000,000 Rock)</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Tab -->
+        <div class="tab-content" id="stats">
+            <h3>📊 Mining Stats</h3>
+            <div class="stats-grid">
+                <div class="stat">
+                    <p>Total Mined: <span id="total-mined">0</span></p>
+                </div>
+                <div class="stat">
+                    <p>Ore Per Second: <span id="ops">0</span></p>
+                </div>
+                <div class="stat">
+                    <p>Total Clicks: <span id="total-clicks">0</span></p>
+                </div>
+                <div class="stat">
+                    <p>Planets Unlocked: <span id="planets-unlocked">1</span>/7</p>
+                </div>
+                <div class="stat">
+                    <p>Upgrades Owned: <span id="upgrades-owned">0</span>/20</p>
+                </div>
+            </div>
         </div>
     </div>
     
