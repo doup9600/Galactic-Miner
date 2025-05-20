@@ -1,0 +1,110 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #0a0a1a;
+    color: #e0e0ff;
+    margin: 0;
+    padding: 20px;
+    background-image: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.game-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: rgba(10, 10, 30, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(100, 100, 255, 0.3);
+    border: 1px solid #444477;
+}
+
+h1 {
+    color: #6ae2ff;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(106, 226, 255, 0.5);
+}
+
+.main-currency {
+    text-align: center;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: rgba(20, 20, 50, 0.7);
+    border-radius: 8px;
+    border: 1px solid #3a3a7a;
+}
+
+#resources {
+    font-size: 24px;
+    color: #6ae2ff;
+}
+
+.resource-icon {
+    font-size: 28px;
+}
+
+#mine-btn {
+    background-color: #6a5acd;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.2s;
+}
+
+#mine-btn:hover {
+    background-color: #7b68ee;
+    box-shadow: 0 0 10px rgba(106, 90, 205, 0.7);
+}
+
+#mine-btn:active {
+    transform: scale(0.95);
+}
+
+.upgrades, .planets, .stats {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: rgba(20, 20, 50, 0.7);
+    border-radius: 5px;
+    border: 1px solid #3a3a7a;
+}
+
+.upgrade, .planet {
+    background-color: rgba(30, 30, 70, 0.7);
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border-left: 4px solid #6a5acd;
+}
+
+.upgrade p, .planet p {
+    margin: 5px 0;
+}
+
+.buy-btn, .unlock-btn {
+    background-color: #4b0082;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.buy-btn:hover, .unlock-btn:hover {
+    background-color: #5a1a92;
+}
+
+.planet.locked {
+    opacity: 0.7;
+}
+
+.planet.locked p {
+    color: #aaa;
+}
+
+.stats p {
+    margin: 5px 0;
+}
