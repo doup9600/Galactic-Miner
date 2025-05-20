@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galactic Miner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Galactic Miner</h1>
+        
+        <div class="main-currency">
+            <h2 id="resources">0 <span class="resource-icon">⛏️</span> Cosmic Ore</h2>
+            <button id="mine-btn">Mine Ore</button>
+        </div>
+        
+        <div class="upgrades">
+            <h3>🛠️ Upgrades</h3>
+            
+            <div class="upgrade" id="drone">
+                <p>Mining Drones (0) - 1 ore every 1 second</p>
+                <p>Cost: <span class="cost">25</span> Cosmic Ore</p>
+                <button class="buy-btn">Buy</button>
+            </div>
+            
+            <div class="upgrade" id="harvester">
+                <p>Auto-Harvesters (0) - 5 ore every 1 second</p>
+                <p>Cost: <span class="cost">100</span> Cosmic Ore</p>
+                <button class="buy-btn">Buy</button>
+            </div>
+            
+            <div class="upgrade" id="freighter">
+                <p>Cargo Freighters (0) - 20 ore every 1 second</p>
+                <p>Cost: <span class="cost">500</span> Cosmic Ore</p>
+                <button class="buy-btn">Buy</button>
+            </div>
+        </div>
+        
+        <div class="planets">
+            <h3>🌌 Discovered Planets</h3>
+            <div class="planet" id="earth">
+                <p>🌍 Earth (Basic Mining)</p>
+                <p>Current income: <span class="income">1x</span></p>
+            </div>
+            
+            <div class="planet locked" id="mars">
+                <p>🔒 Mars (Requires 1,000 Ore)</p>
+                <button class="unlock-btn">Unlock</button>
+            </div>
+            
+            <div class="planet locked" id="jupiter">
+                <p>🔒 Jupiter (Requires 5,000 Ore)</p>
+                <button class="unlock-btn">Unlock</button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <h3>📊 Stats</h3>
+            <p>Ore per second: <span id="ops">0</span></p>
+            <p>Total mined: <span id="total-mined">0</span></p>
+            <p>Total clicks: <span id="total-clicks">0</span></p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
